@@ -1,0 +1,35 @@
+nav {
+  margin-bottom: 20px;
+}
+img.logo {
+  float: left;
+  height: 45px;
+  margin: 10px 10px 0 20px;
+}
+
+span.title {
+  color: white;
+  font-size: 2em;
+  font-family: "Century Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  position: absolute;
+  left: 80px;
+}
+
+.card .card-content .card-title {
+  font-weight: 400;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  flex: 1;
+}

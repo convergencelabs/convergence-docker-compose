@@ -1,0 +1,195 @@
+version: '3'
+
+services:
+  #############################################################################
+  ## Convergence Infrastructure
+  #############################################################################
+
+  ##
+  ## OrientDB is the main database Convergence uses to store data.
+  ##
+  server-orientdb:
+    image: convergencelabs/server-orientdb:latest
+    restart: always
+    environment:
+      ORIENTDB_ROOT_PASSWORD: "password"
+      ORIENTDB_OPTS_MEMORY: "-Xms384m -Xmx384m"
+    volumes:
+      - ./data/orientdb/databases:/orientdb/databases
+      - ./data/orientdb/backup:/orientdb/backup
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.server-orientdb"
+    links:
+      - fluentd
+  ##
+  ## A bootstrapping container that serves as the seed node for the distributed
+  ## cluster of convergence nodes.
+  ##
+  server-cluster-seed:
+    image: convergencelabs/server-cluster-seed:latest
+    command: "-Dlog4j.configurationFile=/etc/convergence/log4j2.xml"
+    restart: always
+    volumes:
+       - ./config/log4j/log4j2.xml:/etc/convergence/log4j2.xml
+    environment:
+      JAVA_OPTS: "-Xmx64m -Xss512k -XX:CICompilerCount=1 -XX:-TieredCompilation"
+      EXTERNAL_HOSTNAME: server-cluster-seed
+      CLUSTER_SEED_NODES: server-cluster-seed
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.server-cluster-seed"
+    links:
+      - fluentd
+
+  ##
+  ## The main server node. In this compose file this single node boots all
+  ## server roles.
+  ##
+  server-node:
+    image: convergencelabs/server-node:latest
+    command: "-Dlog4j.configurationFile=/etc/convergence/log4j2.xml"
+    restart: always
+    volumes:
+       - ./config/log4j/log4j2.xml:/etc/convergence/log4j2.xml
+       - ./config/convergence/convergence-server.conf:/etc/convergence/convergence-server.conf
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.server-node"
+    links:
+      - fluentd
+      - server-cluster-seed
+      - server-orientdb
+
+  ##
+  ## Serves the Convergence Admin Console
+  ##
+  admin-console:
+    image: convergencelabs/admin-console:latest
+    restart: always
+    environment:
+      CONVERGENCE_SERVER_REALTIME_API: "https://${DOCKER_HOSTNAME}/realtime/"
+      CONVERGENCE_SERVER_REST_API: "https://${DOCKER_HOSTNAME}/rest/"
+      CONVERGENCE_CONSOLE_BASE_URL: "/console/"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.admin-console"
+    links:
+      - fluentd
+
+  #############################################################################
+  ## Logging Services
+  #############################################################################
+
+  ##
+  ## Fluentd receives the logs from all of the docker containers, as configed
+  ## by the logging directive in the above services. Fluentd then forwards all
+  ## logs to elasticsearch.
+  ##
+  fluentd:
+    image: convergencelabs/docker-compose-fluentd
+    restart: always
+    environment:
+      FLUENTD_CONF: logs.conf
+      # FLUENTD_OPT: -v
+      FLUENTD_OPT:
+    volumes:
+      - ./data/fluentd:/fluentd/log
+      - ./config/fluentd/logs.conf:/fluentd/etc/logs.conf
+    links:
+      - elasticsearch
+    ports:
+      - "24224:24224"
+
+  ##
+  ## Elasticsearch receives the logs from fluentd and indexes them for
+  ## retrieval.
+  ##
+  elasticsearch:
+    image: elasticsearch:6.5.4
+    restart: always
+    volumes:
+      - ./data/elasticsearch/:/usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.elasticsearch"
+
+  ##
+  ## Kibana visualizes the logs from elsatic search.
+  ##
+  kibana:
+    image: kibana:6.5.4
+    restart: always
+    volumes:
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    links:
+      - elasticsearch
+      - fluentd
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.kibana"
+
+  #############################################################################
+  ## HTTP Proxy
+  #############################################################################
+
+  ##
+  ## The proxy simply creates a single HTTP/HTTP Ingress and forwards traffic
+  ## to the appropriate container.
+  ##
+  proxy:
+    image: nginx:1.11.3-alpine
+    restart: always
+    volumes:
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./config/nginx/html:/usr/share/nginx/html
+      - ./config/nginx/ssl:/etc/nginx/ssl/
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/certbot/www/
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "localhost:24224"
+        fluentd-async-connect: "true"
+        tag: "docker.proxy"
+    depends_on:
+      - fluentd
+      - server-orientdb
+      - kibana
+      - server-node
+      - admin-console
+    ports:
+      - "443:443"
+      - "80:80"
+
+  ##
+  ## The certbot container will optionally create and renew certificates
+  ## if this environment is accessed via a public hostname.
+  ##
+  # certbot:
+  #   image: certbot/certbot
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 24h & wait $${!}; done;'"
