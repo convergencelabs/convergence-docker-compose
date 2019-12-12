@@ -1,5 +1,13 @@
 This project leverages docker-compose to stand up a self contained version of all Convergence Services to create a full Convergence environment. This project can be used as a local development environment or the basis of a production deployment using Docker Compose.
 
+# Support
+
+[Convergence Labs](https://convergencelabs.com) provides several different channels for support:
+
+- For assistance with large deployments or for deploying on systems like Kubernetes, use the [Convergence Community Forum](https://forum.convergence.io) or [contact us](https://convergence.io/contact-sales/) directly.
+- Chat with us on the [Convergence Public Slack](https://slack.convergence.io).
+- To report problems in this repository, use the [Convergence Management Project](https://github.com/convergencelabs/convergence-project).
+
 # Hostname Configuration
 If running in Linux, using Docker for Mac, or Docker for Windows, it is likely that your docker hostname will be "localhost". If using Docker Toolbox, or if you have installed docker in a Linux VM, it is possible that your docker hostname will be something else (for example an IP Address).
 
