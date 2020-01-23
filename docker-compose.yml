@@ -38,6 +38,12 @@ services:
   server:
     image: ${CONVERGENCE_DOCKER_REPO}/convergence-server:${CONVERGENCE_DOCKER_TAG}
     # restart: always
+    environment:
+      DB_URI: "remote:orientdb:2424"
+      DB_ADMIN_USERNAME: "root"
+      DB_ADMIN_PASSWORD: "password"
+      CONVERGENCE_SERVER_ROLES: "backend,realtimeApi,restApi"
+      CONVERGENCE_CLUSTER_SEEDS: "cluster-seed"
     volumes:
        - ./config/convergence/log4j2.xml:/opt/convergence/conf/log4j2.xml
        - ./config/convergence/convergence-server.conf:/opt/convergence/conf/convergence-server.conf
