@@ -41,7 +41,7 @@ You can configure the default namespace, domain, and administration user (to log
 
 ## System requirements
 
-If you're spinning up all the containers defined in the `docker-compose.yml` in this repository on a single cloud compute instance, make sure this instance has AT LEAST 4GB RAM available.  Otherwise you will see errors in the server and/or orientdb.
+If you're spinning up all the containers defined in the `docker-compose.yml` in this repository on a single cloud compute instance, make sure this instance has AT LEAST 4GB RAM (and preferably 6GB+) available.  Otherwise you will see errors in the server and/or orientdb.
 
 ## Security
 
