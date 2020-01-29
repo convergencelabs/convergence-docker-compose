@@ -39,6 +39,10 @@ To use your own SSL certs, edit the `config/nginx/default.conf` file appropriate
 
 You can configure the default namespace, domain, and administration user (to log into the administration console) in `config/convergence/convergence-server.conf`. 
 
+## System requirements
+
+If you're spinning up all the containers defined in the `docker-compose.yml` in this repository on a single cloud compute instance, make sure this instance has AT LEAST 4GB RAM available.  Otherwise you will see errors in the server and/or orientdb.
+
 ## Security
 
 You probably only want to provide public access to the API endpoints listed above, and lock down everything else.  
