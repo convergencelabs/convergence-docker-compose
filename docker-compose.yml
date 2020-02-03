@@ -18,7 +18,7 @@ services:
 
   ##
   ## A bootstrapping container that serves as the seed node for the distributed
-  ## cluster of convergence nodes.
+  ## Convergence cluster.
   ##
   cluster-seed:
     image: ${CONVERGENCE_DOCKER_REPO}/convergence-cluster-seed:latest
@@ -32,21 +32,15 @@ services:
       CLUSTER_SEED_NODES: cluster-seed
 
   ##
-  ## The main server node. In this compose file this single node boots all
+  ## The main Convergence Server. In this compose file this single node boots all
   ## server roles.
   ##
   server:
     image: ${CONVERGENCE_DOCKER_REPO}/convergence-server:${CONVERGENCE_DOCKER_TAG}
     # restart: always
-    environment:
-      DB_URI: "remote:orientdb:2424"
-      DB_ADMIN_USERNAME: "root"
-      DB_ADMIN_PASSWORD: "password"
-      CONVERGENCE_SERVER_ROLES: "backend,realtimeApi,restApi"
-      CONVERGENCE_CLUSTER_SEEDS: "cluster-seed"
     volumes:
-       - ./config/convergence/log4j2.xml:/opt/convergence/conf/log4j2.xml
-       - ./config/convergence/convergence-server.conf:/opt/convergence/conf/convergence-server.conf
+       - ./config/convergence/log4j2.xml:/opt/convergence-server/conf/log4j2.xml
+       - ./config/convergence/convergence-server.conf:/opt/convergence-server/conf/convergence-server.conf
     links:
      - cluster-seed
      - orientdb
