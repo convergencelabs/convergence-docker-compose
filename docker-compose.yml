@@ -21,14 +21,14 @@ services:
   ## Convergence cluster.
   ##
   cluster-seed:
-    image: ${CONVERGENCE_DOCKER_REPO}/convergence-cluster-seed:latest
+    image: ${CONVERGENCE_DOCKER_REPO}/convergence-cluster-seed:${CONVERGENCE_DOCKER_TAG}
     command: "-Dlog4j.configurationFile=/etc/convergence/log4j2.xml"
     # restart: always
     volumes:
        - ./config/convergence/log4j2.xml:/etc/convergence/log4j2.xml
     environment:
       JAVA_OPTS: "-Xmx64m -Xss512k -XX:CICompilerCount=1 -XX:-TieredCompilation"
-      EXTERNAL_HOSTNAME: cluster-seed
+      REMOTING_EXTERNAL_HOSTNAME: cluster-seed
       CLUSTER_SEED_NODES: cluster-seed
 
   ##
