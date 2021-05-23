@@ -6,7 +6,7 @@ services:
   ## OrientDB is the main database Convergence uses to store data.
   ##
   orientdb:
-    image: ${CONVERGENCE_DOCKER_REPO}/convergence-orientdb:latest
+    image: orientdb:3.0.37
     # restart: always
     environment:
       ORIENTDB_ROOT_PASSWORD: "password"
