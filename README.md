@@ -1,6 +1,7 @@
-This project leverages docker-compose to stand up a self contained version of all Convergence Services to create a full Convergence environment. This project can be used as a local development environment or the basis of a production deployment using Docker Compose.
+# Convergence Docker Compose
+This project leverages docker-compose to stand up a self-contained version of all Convergence Services to create a full Convergence environment. This project can be used as a local development environment or the basis of a production deployment using Docker Compose.
 
-# Support
+## Support
 
 [Convergence Labs](https://convergencelabs.com) provides several different channels for support:
 
@@ -8,7 +9,7 @@ This project leverages docker-compose to stand up a self contained version of al
 - Chat with us on the [Convergence Public Slack](https://slack.convergence.io).
 - To report problems in this repository, use the [Convergence Management Project](https://github.com/convergencelabs/convergence-project).
 
-# Hostname Configuration
+## Hostname Configuration
 If running in Linux, using Docker for Mac, or Docker for Windows, it is likely that your docker hostname will be "localhost". If using Docker Toolbox, or if you have installed docker in a Linux VM, it is possible that your docker hostname will be something else (for example an IP Address).
 
 By default the `.env` file contains the following:
@@ -22,20 +23,22 @@ If you docker host is not localhost, update this setting to point to the right h
 You will also need to edit the default nginx config file `config/nginx/default.conf` to set the `server_name` to the proper hostname.  Just do a find and replace of `localhost` to your hostname.
 
 ## Browsing and Service URLs
-Please note that this installation contains a self signed SSL Certificate that will need to be accepted. Also note that the hostname may not be localhost (as discussed above).
+Please note that this installation contains a self-signed SSL Certificate that will need to be accepted. Also note that the hostname may not be localhost (as discussed above).
 
 * Dev Launchpad URL: `https://<hostname>/`
 * REST API Endpoint: `https://<hostname>/rest/v1`
 * Web Socket Endpoint: `https://<hostname>/realtime/`
 
-# Persistent Data
+## Persistent Data
 When the environment starts up, it will create a `data` directory where all persistent data from the services will be stored. You can tear down and recreate the environment and data will still persist in the data directory. If you would like to start from scratch simply delete the data directory.
 
-# Additional configuration
+
+## HTTPS SSL Certificates
+The docker compose project uses [NGINX](http://nginx.org/) as a reverse proxy to host HTTP endpoints. The configuration comes with self-signed certificates configured for the nginx reverse proxy.  The certificates are located in the [config/nginx/ssl](config/nginx/ssl) directory. If you want to use your own certs simply replace the `server.crt` and `server.key` files in that directory. Refer to the [nginx documentation](http://nginx.org/en/docs/) for more information.
+
+## Additional configuration
 
 Within the `config` directory you'll see a few different sets of configurations for the various containers (see below).  You'll probably be most interested in the `convergence` and `nginx` directories.  
-
-To use your own SSL certs, edit the `config/nginx/default.conf` file appropriately and drop your certs in the `config/nginx/ssl` directory. 
 
 You can configure the default namespace, domain, and administration user (to log into the administration console) in `config/convergence/convergence-server.conf`. 
 
@@ -47,16 +50,16 @@ If you're spinning up all the containers defined in the `docker-compose.yml` in 
 
 You probably only want to provide public access to the API endpoints listed above, and lock down everything else.  
 
-# Docker Usage
+## Docker Usage
 
-## Services / Containers
+### Services / Containers
 * `orientdb`: Provides the core database for Convergence
 * `cluster-seed`: The seed node of the Convergence cluster
 * `server`: The Convergence Server
 * `admin-console`: The Administration Console user interface
-* `proxy`: An nginx reverse proxy for the whole Convergence environment
+* `proxy`: An [nginx](https://nginx.org) reverse proxy for the whole Convergence environment
 
-## Start Full Deployment
+### Start Full Deployment
 To start up the entire environment issue the following command
 ```
 docker-compose up
@@ -69,7 +72,7 @@ docker-compose up -d
 ```
 
 
-## Start Individual Containers
+### Start Individual Containers
 To start up only a single container use:
 ```
 docker-compose up <container-name>
@@ -77,19 +80,19 @@ docker-compose up <container-name>
 
 If you change a container, docker up will undeploy the current one and re-deploy the new one if there are any changes.
 
-## Stop Individual Containers
+### Stop Individual Containers
 To start up only a single container use:
 ```
 docker-compose stop <container-name>
 ```
 
-## Tear down the environment
+### Tear down the environment
 To tear down the environment use:
 ```
 docker-compose down
 ```
 
-# Troubleshooting
+## Troubleshooting
 If all else fails, post your problem at https://forum.convergence.io and the team will help you out.
 
 > I'm getting `access denied` errors

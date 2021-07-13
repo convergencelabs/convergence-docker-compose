@@ -4,7 +4,7 @@ We recommend a `t3.large` ([specs](https://aws.amazon.com/ec2/instance-types/t3/
 
 ## Ports
 
-443 (and optionally 80) should accept inbound TCP traffic.
+TCP ports `443` (and optionally `80`) should accept inbound TCP traffic.
 
 ## Install Docker and docker-compose
 
