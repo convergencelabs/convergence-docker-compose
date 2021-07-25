@@ -26,8 +26,9 @@ You will also need to edit the default nginx config file `config/nginx/default.c
 Please note that this installation contains a self-signed SSL Certificate that will need to be accepted. Also note that the hostname may not be localhost (as discussed above).
 
 * Dev Launchpad URL: `https://<hostname>/`
-* REST API Endpoint: `https://<hostname>/rest/v1`
-* Web Socket Endpoint: `https://<hostname>/realtime/`
+* Admin Console: `https://<hostname>/console/`
+* REST API Endpoint: `https://<hostname>/api/rest/`
+* Web Socket Endpoint: `https://<hostname>/api/realtime/`
 
 ## Persistent Data
 When the environment starts up, it will create a `data` directory where all persistent data from the services will be stored. You can tear down and recreate the environment and data will still persist in the data directory. If you would like to start from scratch simply delete the data directory.
